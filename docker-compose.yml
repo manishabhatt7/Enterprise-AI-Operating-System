@@ -1,0 +1,72 @@
+services:
+
+  backend:
+    build: .
+    container_name: aios-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /app/.venv  
+    environment:
+      - UV_PROJECT_ENVIRONMENT=/opt/venv
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app-network
+
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: aios-postgres
+    ports:
+      - "5433:5432"
+    restart: always
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d aios"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+
+  redis:
+    image: redis:7-alpine
+    container_name: aios-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD","redis-cli","ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+
+
+volumes:
+  postgres_data:
+  redis_data:
+
+
+networks:
+  app-network:
+    driver: bridge
+      
