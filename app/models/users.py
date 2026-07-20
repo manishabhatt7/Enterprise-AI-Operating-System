@@ -8,6 +8,7 @@ from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.enums.roles import UserRole
+from app.models.agents import Agent
 from app.models.base import BaseModel
 
 if TYPE_CHECKING:
@@ -57,6 +58,11 @@ class User(BaseModel):
 
     organization: Mapped["Organization"] = relationship(
         back_populates="users",
+    )
+
+    created_agents: Mapped[list["Agent"]] = relationship(
+        back_populates="creator",
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self) -> str:
