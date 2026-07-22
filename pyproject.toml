@@ -10,6 +10,7 @@ dependencies = [
     "fastapi[standard]>=0.139.0",
     "greenlet>=3.5.3",
     "httpx>=0.28.1",
+    "openai>=2.46.0",
     "passlib[bcrypt]>=1.7.4",
     "pwdlib[argon2]>=0.3.0",
     "pydantic>=2.13.4",

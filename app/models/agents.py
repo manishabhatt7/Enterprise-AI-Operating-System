@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from sqlalchemy import (
     Boolean,
+    Enum as SqlEnum,
     Float,
     ForeignKey,
     String,
@@ -14,8 +15,15 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from uuid import UUID
+from typing import TYPE_CHECKING
+from app.enums.providers import ProviderEnum
 
 from app.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from app.models.organizations import Organization
+    from app.models.users import User
+    from app.models.conversations import Conversation
 
 
 class Agent(BaseModel):
@@ -62,9 +70,19 @@ class Agent(BaseModel):
         nullable=False,
     )
 
-    model: Mapped[str] = mapped_column(
-        String(100),
+    provider: Mapped[ProviderEnum] = mapped_column(
+        SqlEnum(
+            ProviderEnum,
+            name="provider",
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+            native_enum=False,
+        ),
         nullable=False,
+        default=ProviderEnum.GROQ,
+    )
+
+    model: Mapped[str] = mapped_column(
+        String(100), nullable=False, default="llama-3.3-70b-versatile"
     )
 
     temperature: Mapped[float] = mapped_column(
@@ -79,20 +97,20 @@ class Agent(BaseModel):
         default=True,
     )
 
-    organization = relationship(
-        "Organization",
+    organization: Mapped["Organization"] = relationship(
         back_populates="agents",
     )
 
-    creator = relationship(
-        "User",
+    creator: Mapped["User"] = relationship(
         back_populates="created_agents",
+    )
+
+    conversations: Mapped[list["Conversation"]] = relationship(
+        back_populates="agent",
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self) -> str:
         return (
-            f"Agent("
-            f"id={self.id}, "
-            f"name='{self.name}', "
-            f"model='{self.model}')"
+            f"Agent(" f"id={self.id}, " f"name='{self.name}', " f"model='{self.model}')"
         )

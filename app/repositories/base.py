@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import Any, Generic, TypeVar
 from uuid import UUID
 
@@ -22,11 +23,28 @@ class BaseRepository(Generic[ModelType]):
         self.session = session
         self.model = model
 
+    def _supports_soft_delete(self) -> bool:
+        """
+        Returns True if the model has a deleted_at column.
+        """
+        return hasattr(self.model, "deleted_at")
+
     async def get(
         self,
         id: UUID,
+        *,
+        include_deleted: bool = False,
     ) -> ModelType | None:
-        stmt = select(self.model).where(self.model.id == id)
+
+        stmt = select(self.model).where(
+            self.model.id == id,
+        )
+
+        if self._supports_soft_delete():
+            if not include_deleted:
+                stmt = stmt.where(
+                    self.model.deleted_at.is_(None),
+                )
 
         result = await self.session.execute(stmt)
 
@@ -37,11 +55,19 @@ class BaseRepository(Generic[ModelType]):
         *,
         offset: int = 0,
         limit: int = 100,
+        include_deleted: bool = False,
     ) -> list[ModelType]:
 
+        stmt = select(self.model)
+
+        if self._supports_soft_delete():
+            if not include_deleted:
+                stmt = stmt.where(
+                    self.model.deleted_at.is_(None),
+                )
+
         stmt = (
-            select(self.model)
-            .offset(offset)
+            stmt.offset(offset)
             .limit(limit)
         )
 
@@ -49,8 +75,18 @@ class BaseRepository(Generic[ModelType]):
 
         return list(result.scalars().all())
 
-    async def count(self) -> int:
-        stmt = select(func.count()).select_from(self.model)
+    async def count(
+        self,
+    ) -> int:
+
+        stmt = select(func.count()).select_from(
+            self.model,
+        )
+
+        if self._supports_soft_delete():
+            stmt = stmt.where(
+                self.model.deleted_at.is_(None),
+            )
 
         result = await self.session.execute(stmt)
 
@@ -91,10 +127,40 @@ class BaseRepository(Generic[ModelType]):
 
         return obj
 
+    async def soft_delete(
+        self,
+        obj: ModelType,
+    ) -> None:
+
+        if not self._supports_soft_delete():
+            raise NotImplementedError(
+                f"{self.model.__name__} does not support soft delete."
+            )
+
+        obj.deleted_at = datetime.now(UTC)
+
+        await self.session.flush()
+
+    async def soft_delete_by_id(
+        self,
+        id: UUID,
+    ) -> None:
+
+        obj = await self.get(id)
+
+        if obj is None:
+            return
+
+        await self.soft_delete(obj)
+
     async def delete(
         self,
         obj: ModelType,
     ) -> None:
+        """
+        Permanently delete an object.
+        Use only for admin cleanup, tests, or GDPR requests.
+        """
 
         await self.session.delete(obj)
 
@@ -102,10 +168,12 @@ class BaseRepository(Generic[ModelType]):
         self,
         id: UUID,
     ) -> None:
+        """
+        Permanently delete by id.
+        """
 
         stmt = delete(self.model).where(
-            self.model.id == id
+            self.model.id == id,
         )
 
         await self.session.execute(stmt)
-

@@ -5,11 +5,12 @@ from typing import TYPE_CHECKING
 from sqlalchemy import String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models.agents import Agent
 from app.models.base import BaseModel
 
 if TYPE_CHECKING:
     from app.models.users import User
+    from app.models.agents import Agent
+    from app.models.conversations import Conversation
 
 
 class Organization(BaseModel):
@@ -39,8 +40,13 @@ class Organization(BaseModel):
     )
 
     agents: Mapped[list["Agent"]] = relationship(
-    back_populates="organization",
-    cascade="all, delete-orphan",
+        back_populates="organization",
+        cascade="all, delete-orphan",
+    )
+
+    conversations: Mapped[list["Conversation"]] = relationship(
+        back_populates="organization",
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self) -> str:

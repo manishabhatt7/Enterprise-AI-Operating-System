@@ -3,6 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories.organization import OrganizationRepository
 from app.repositories.user import UserRepository
 from app.repositories.agent import AgentRepository
+from app.repositories.conversation import ConversationRepository
+from app.repositories.message import MessageRepository
 
 
 class UnitOfWork:
@@ -12,9 +14,14 @@ class UnitOfWork:
         self.organizations = OrganizationRepository(session)
         self.users = UserRepository(session)
         self.agents = AgentRepository(session)
+        self.conversations = ConversationRepository(session)
+        self.messages = MessageRepository(session)
 
     async def commit(self):
         await self.session.commit()
 
     async def rollback(self):
         await self.session.rollback()
+
+    async def refresh(self, instance):
+        await self.session.refresh(instance)
