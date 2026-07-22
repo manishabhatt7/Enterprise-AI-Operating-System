@@ -12,6 +12,7 @@ from app.schemas.message import (
 from app.services.ai_chat import AIChatService
 from app.services.message import MessageService
 from app.uow.unit_of_work import UnitOfWork
+from fastapi.responses import StreamingResponse
 
 router = APIRouter(
     prefix="/conversations/{conversation_id}/messages",
@@ -37,6 +38,36 @@ async def send_message(
         conversation_id=conversation_id,
         content=data.content,
         current_user=current_user,
+    )
+
+
+@router.post(
+    "/stream",
+)
+async def stream_message(
+    conversation_id: UUID,
+    data: MessageCreate,
+    current_user: User = Depends(get_current_user),
+    uow: UnitOfWork = Depends(get_uow),
+):
+
+    service = AIChatService(uow)
+
+    async def event_generator():
+
+        async for token in service.stream_chat(
+            conversation_id=conversation_id,
+            content=data.content,
+            current_user=current_user,
+        ):
+
+            yield f"data: {token}\n\n"
+
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
     )
 
 
