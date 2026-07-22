@@ -8,11 +8,12 @@ from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.enums.roles import UserRole
-from app.models.agents import Agent
 from app.models.base import BaseModel
 
 if TYPE_CHECKING:
     from app.models.organizations import Organization
+    from app.models.agents import Agent
+    from app.models.conversations import Conversation
 
 
 class User(BaseModel):
@@ -62,6 +63,11 @@ class User(BaseModel):
 
     created_agents: Mapped[list["Agent"]] = relationship(
         back_populates="creator",
+        cascade="all, delete-orphan",
+    )
+
+    conversations: Mapped[list["Conversation"]] = relationship(
+        back_populates="user",
         cascade="all, delete-orphan",
     )
 
