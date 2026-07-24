@@ -7,11 +7,14 @@ from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.logging import configure_logging
 from app.exceptions.handlers import register_exception_handlers
+from app.tools.register import register_tools
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     configure_logging()
+
+    register_tools()
 
     print("🚀 AIOS API Started")
 

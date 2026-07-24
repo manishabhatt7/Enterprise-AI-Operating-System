@@ -4,7 +4,7 @@ from enum import Enum
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Enum as SqlEnum
-from sqlalchemy import ForeignKey, Text
+from sqlalchemy import ForeignKey, Text, String
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from uuid import UUID
@@ -20,6 +20,7 @@ class MessageRole(str, Enum):
     SYSTEM = "system"
     USER = "user"
     ASSISTANT = "assistant"
+    TOOL = "tool"
 
 
 class Message(BaseModel):

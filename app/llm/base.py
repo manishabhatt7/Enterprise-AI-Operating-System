@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import AsyncGenerator
+from typing import Any
 
 
 class BaseLLMProvider(ABC):
@@ -16,7 +17,8 @@ class BaseLLMProvider(ABC):
         messages: list[dict],
         model: str,
         temperature: float,
-    ) -> str:
+        tools: list[dict[str, Any]] | None = None,
+    ) -> Any:
         """
         Generate an assistant response.
 
@@ -33,5 +35,6 @@ class BaseLLMProvider(ABC):
         messages: list[dict],
         model: str,
         temperature: float,
+        tools: list[dict[str, Any]] | None = None,
     ) -> AsyncGenerator[str, None]:
         ...
