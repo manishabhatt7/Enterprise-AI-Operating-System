@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str
     GROQ_BASE_URL: str 
 
+    MAX_RETRIES: int = 3
+    INITIAL_BACKOFF: float = 1.0
+
     model_config = SettingsConfigDict(
         env_file=".env",
         case_sensitive=True,

@@ -1,3 +1,4 @@
+from typing import Any
 from openai import AsyncOpenAI
 
 from app.llm.base import BaseLLMProvider
@@ -17,15 +18,17 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         messages: list[dict],
         model: str,
         temperature: float,
-    ) -> str:
+        tools: list[dict[str, Any]] | None = None,
+    ) -> Any:
 
         response = await self.client.chat.completions.create(
             model=model,
             temperature=temperature,
             messages=messages,
+            tools=tools,
         )
 
-        return response.choices[0].message.content
+        return response.choices[0].message
 
 
     async def stream_chat(
