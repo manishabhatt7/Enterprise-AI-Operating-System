@@ -11,16 +11,10 @@ from uuid import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import BaseModel
+from app.enums.message import MessageRole
 
 if TYPE_CHECKING:
     from app.models.conversations import Conversation
-
-
-class MessageRole(str, Enum):
-    SYSTEM = "system"
-    USER = "user"
-    ASSISTANT = "assistant"
-    TOOL = "tool"
 
 
 class Message(BaseModel):

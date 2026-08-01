@@ -58,6 +58,7 @@ uploads/
 storage/
 tmp/
 tests/
+uploads
 
 # Alembic cache
 alembic/versions/__pycache__/

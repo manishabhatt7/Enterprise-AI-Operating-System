@@ -2,7 +2,8 @@ from uuid import UUID
 
 from app.exceptions.agent import NotFoundException
 from app.exceptions.conversation import ConversationNotFound
-from app.models.conversations import Conversation, ConversationStatus
+from app.models.conversations import Conversation
+from app.enums.conversation import ConversationStatus
 from app.models.users import User
 from app.schemas.conversation import (
     ConversationCreate,

@@ -1,7 +1,8 @@
 from uuid import UUID
 
 from app.exceptions.conversation import ConversationNotFound
-from app.models.messages import Message, MessageRole
+from app.models.messages import Message
+from app.enums.message import MessageRole
 from app.models.users import User
 from app.schemas.message import MessageCreate
 from app.uow.unit_of_work import UnitOfWork

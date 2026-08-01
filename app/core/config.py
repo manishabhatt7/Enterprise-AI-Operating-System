@@ -24,6 +24,19 @@ class Settings(BaseSettings):
     MAX_RETRIES: int = 3
     INITIAL_BACKOFF: float = 1.0
 
+    STORAGE_ROOT: str = "uploads"
+    STORAGE_PROVIDER: str = "local"
+
+    MAX_DOCUMENT_SIZE : int = 10 * 1024 * 1024  # 10 MB in bytes
+
+    ALLOWED_DOCUMENT_TYPES : list[str] = [
+        "application/pdf",
+    ]
+
+    QDRANT_URL:str
+    QDRANT_API_KEY:str
+    QDRANT_COLLECTION_NAME:str
+
     model_config = SettingsConfigDict(
         env_file=".env",
         case_sensitive=True,

@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from app.models.users import User
     from app.models.agents import Agent
     from app.models.conversations import Conversation
+    from app.models.knowledge_bases import KnowledgeBase
 
 
 class Organization(BaseModel):
@@ -47,6 +48,10 @@ class Organization(BaseModel):
     conversations: Mapped[list["Conversation"]] = relationship(
         back_populates="organization",
         cascade="all, delete-orphan",
+    )
+
+    knowledge_bases: Mapped[list["KnowledgeBase"]] = relationship(
+        back_populates="organization",
     )
 
     def __repr__(self) -> str:

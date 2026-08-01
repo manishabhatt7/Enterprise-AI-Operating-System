@@ -7,7 +7,7 @@ from app.models.agents import Agent
 from app.models.conversations import Conversation
 from app.models.messages import Message, MessageRole
 from app.models.users import User
-from app.services.title_generator import TitleGenerator
+from app.utils.title_generator import TitleGenerator
 from app.uow.unit_of_work import UnitOfWork
 from collections.abc import AsyncGenerator
 from app.tools.registry import tool_registry

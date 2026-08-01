@@ -5,6 +5,8 @@ from app.repositories.user import UserRepository
 from app.repositories.agent import AgentRepository
 from app.repositories.conversation import ConversationRepository
 from app.repositories.message import MessageRepository
+from app.repositories.knowledge_base import KnowledgeBaseRepository
+from app.repositories.document import DocumentRepository
 
 
 class UnitOfWork:
@@ -16,7 +18,9 @@ class UnitOfWork:
         self.agents = AgentRepository(session)
         self.conversations = ConversationRepository(session)
         self.messages = MessageRepository(session)
-
+        self.knowledge_bases = KnowledgeBaseRepository(session)
+        self.documents = DocumentRepository(session)
+        
     async def commit(self):
         await self.session.commit()
 

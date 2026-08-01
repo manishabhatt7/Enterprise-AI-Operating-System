@@ -10,17 +10,13 @@ from uuid import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import BaseModel
+from app.enums.conversation import ConversationStatus
 
 if TYPE_CHECKING:
     from app.models.messages import Message
     from app.models.organizations import Organization
     from app.models.users import User
     from app.models.agents import Agent
-
-
-class ConversationStatus(str, Enum):
-    ACTIVE = "active"
-    ARCHIVED = "archived"
 
 
 class Conversation(BaseModel):
