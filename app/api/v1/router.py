@@ -9,6 +9,7 @@ from app.api.v1.endpoints.conversations import router as conversation_router
 from app.api.v1.endpoints.messages import router as message_router
 from app.api.v1.endpoints.knowledge_bases import router as knowledge_base_router
 from app.api.v1.endpoints.documents import router as document_router
+from app.api.v1.endpoints.query import router as query_router
 
 api_router = APIRouter(prefix="/api/v1")
 
@@ -20,3 +21,4 @@ api_router.include_router(conversation_router)
 api_router.include_router(message_router)
 api_router.include_router(knowledge_base_router)
 api_router.include_router(document_router)
+api_router.include_router(query_router)

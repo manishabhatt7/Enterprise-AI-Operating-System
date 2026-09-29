@@ -37,6 +37,16 @@ class Settings(BaseSettings):
     QDRANT_API_KEY:str
     QDRANT_COLLECTION_NAME:str
 
+    OLLAMA_BASE_URL: str = "http://localhost:11434"
+    EMBEDDING_MODEL: str = "nomic-embed-text"
+
+    RERANKER_MODEL: str = "BAAI/bge-reranker-base"
+
+    OLLAMA_LLM_MODEL: str 
+
+    RETRIEVAL_TOP_K: int = 20
+    RERANK_TOP_K: int = 5
+
     model_config = SettingsConfigDict(
         env_file=".env",
         case_sensitive=True,

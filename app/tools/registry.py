@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from app.tools.base import BaseTool
+from app.tools.schema import tool_to_openai_schema
+
 
 
 class ToolRegistry:
@@ -69,8 +71,6 @@ class ToolRegistry:
     def schemas(
         self,
     ) -> list[dict]:
-
-        from app.tools.schema import tool_to_openai_schema
 
         return [
             tool_to_openai_schema(tool)

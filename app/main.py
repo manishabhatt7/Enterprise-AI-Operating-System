@@ -1,4 +1,3 @@
-# Application entrypoint
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -7,20 +6,37 @@ from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.logging import configure_logging
 from app.exceptions.handlers import register_exception_handlers
-from app.tools.register import register_tools
+from app.mcp.config import get_mcp_server_params
+
+from app.mcp.client import MCPClient
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+
     configure_logging()
 
-    register_tools()
+    server_params = get_mcp_server_params()
 
-    print("🚀 AIOS API Started")
+    mcp_client = MCPClient(server_params=server_params)
+
+    await mcp_client.connect()
+
+    app.state.mcp_client = mcp_client
+
+    # logger.info("🚀 AIOS API Started")
+
+    # logger.info("🔌 MCP Client Connected")
 
     yield
 
-    print("🛑 AIOS API Stopped")
+    await mcp_client.close()
+
+    logger.info("🛑 AIOS API Stopped")
 
 
 app = FastAPI(
@@ -33,4 +49,3 @@ app = FastAPI(
 register_exception_handlers(app)
 
 app.include_router(api_router)
-

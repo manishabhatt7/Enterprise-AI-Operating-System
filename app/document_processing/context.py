@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from app.document_processing.schemas import (
+from app.document_processing.schemas.processing import (
     EmbeddedDocument,
     ParsedDocument,
     StructuredDocument,

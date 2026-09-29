@@ -9,7 +9,7 @@ from langchain_text_splitters import (
 from app.document_processing.chunkers.base import (
     BaseChunker,
 )
-from app.document_processing.schemas import (
+from app.document_processing.schemas.processing import (
     Chunk,
     StructuredDocument,
 )

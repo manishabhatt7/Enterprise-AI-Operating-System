@@ -7,7 +7,7 @@ import pymupdf4llm
 from app.document_processing.parsers.document_parsers.base import (
     BaseDocumentParser,
 )
-from app.document_processing.schemas import (
+from app.document_processing.schemas.processing import (
     PageContent,
     ParsedDocument,
 )

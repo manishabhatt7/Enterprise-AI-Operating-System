@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from app.document_processing.schemas import ParsedDocument
+from app.document_processing.schemas.processing import ParsedDocument
 
 
 class BaseDocumentParser(ABC):

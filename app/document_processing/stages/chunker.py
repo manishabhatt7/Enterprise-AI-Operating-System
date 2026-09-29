@@ -9,7 +9,6 @@ from app.document_processing.context import (
 from app.document_processing.stages.base import (
     ProcessingStage,
 )
-from app.models.documents import Document
 from app.uow.unit_of_work import UnitOfWork
 
 
@@ -19,6 +18,7 @@ class ChunkingStage(ProcessingStage):
         self,
         chunker: BaseChunker,
     ) -> None:
+        
         self.chunker = chunker
 
     async def run(
@@ -28,7 +28,6 @@ class ChunkingStage(ProcessingStage):
         context: ProcessingContext,
     ) -> None:
 
-        print("===== Chunker Stage =====")
         if context.structured_document is None:
             raise ValueError(
                 "Structured document not found."

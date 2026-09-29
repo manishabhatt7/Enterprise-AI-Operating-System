@@ -2,7 +2,7 @@ from collections.abc import Callable
 
 from fastapi import Depends
 
-from app.core.security import UserRole
+from app.enums.roles import UserRole
 from app.dependencies.auth import get_current_user
 from app.exceptions.auth import Forbidden
 from app.models.users import User

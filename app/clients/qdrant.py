@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 from qdrant_client import AsyncQdrantClient
-from qdrant_client.models import PointStruct
+from qdrant_client.models import PointStruct, SparseVector, VectorParams, Distance, SparseVectorParams, Filter, PayloadSchemaType
+from qdrant_client.http.exceptions import UnexpectedResponse
 
 from app.core.config import settings
-
-from qdrant_client.models import VectorParams, Distance
-from qdrant_client.http.exceptions import UnexpectedResponse
 
 
 class QdrantClient:
@@ -17,7 +15,6 @@ class QdrantClient:
             url=settings.QDRANT_URL,
             api_key=settings.QDRANT_API_KEY,
         )
-
 
     async def ensure_collection(
         self,
@@ -38,12 +35,27 @@ class QdrantClient:
                 raise
 
         await self.client.create_collection(
-            collection_name=collection_name,
-            vectors_config=VectorParams(
-                size=vector_size,
-                distance=Distance.COSINE,
-            ),
+            collection_name=settings.QDRANT_COLLECTION_NAME,
+            vectors_config={
+                "dense": VectorParams(
+                    size=vector_size,
+                    distance=Distance.COSINE,
+                ),
+            },
+            sparse_vectors_config={
+                "sparse": SparseVectorParams(),
+            },
         )
+
+        try:
+            await self.client.create_payload_index(
+                collection_name=collection_name,
+                field_name="organization_id",
+                field_schema=PayloadSchemaType.UUID,
+            )
+        except Exception:
+            # Index may already exist
+            pass
 
     async def upsert(
         self,
@@ -56,6 +68,25 @@ class QdrantClient:
             collection_name=collection_name,
             points=points,
             wait=True,
+        )
+
+    async def search(
+        self,
+        *,
+        collection_name: str,
+        query: list[float] | SparseVector,
+        using: str,
+        limit: int = 5,
+        query_filter: Filter | None = None,
+        with_payload: bool = True,
+    ):
+        return await self.client.query_points(
+            collection_name=collection_name,
+            query=query,
+            using=using,
+            limit=limit,
+            query_filter=query_filter,
+            with_payload=with_payload,
         )
 
 

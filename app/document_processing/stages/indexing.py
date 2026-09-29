@@ -12,15 +12,17 @@ class IndexingStage(ProcessingStage):
         self,
         indexer: BaseIndexer,
     ) -> None:
+        
         self.indexer = indexer
 
     async def run(
         self,
         *,
         uow: UnitOfWork,
+        organization_id: str,
         context: ProcessingContext,
     ) -> None:
-        print("===== Indexer Stage =====")
+        
         if context.document is None:
             raise ValueError("Document not found.")
 
@@ -30,4 +32,5 @@ class IndexingStage(ProcessingStage):
         await self.indexer.index(
             document=context.document,
             embedded_document=context.embedded_document,
+            organization_id=organization_id
         )

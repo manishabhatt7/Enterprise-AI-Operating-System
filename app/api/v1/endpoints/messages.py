@@ -1,18 +1,18 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
+from fastapi.responses import StreamingResponse
 
 from app.dependencies.auth import get_current_user
 from app.dependencies.database import get_uow
 from app.models.users import User
-from app.schemas.message import (
-    MessageCreate,
-    MessageResponse,
-)
+from app.schemas.message import MessageCreate, MessageResponse
 from app.services.ai_chat import AIChatService
 from app.services.message import MessageService
 from app.uow.unit_of_work import UnitOfWork
-from fastapi.responses import StreamingResponse
+from app.mcp.client import MCPClient
+from app.dependencies.mcp import get_mcp_client
+
 
 router = APIRouter(
     prefix="/conversations/{conversation_id}/messages",
@@ -30,9 +30,12 @@ async def send_message(
     data: MessageCreate,
     current_user: User = Depends(get_current_user),
     uow: UnitOfWork = Depends(get_uow),
+    mcp_client: MCPClient = Depends(get_mcp_client),
 ):
-
-    service = AIChatService(uow)
+    service = AIChatService(
+        uow=uow,
+        mcp_client=mcp_client,
+    )
 
     return await service.chat(
         conversation_id=conversation_id,
@@ -41,26 +44,25 @@ async def send_message(
     )
 
 
-@router.post(
-    "/stream",
-)
+@router.post("/stream")
 async def stream_message(
     conversation_id: UUID,
     data: MessageCreate,
     current_user: User = Depends(get_current_user),
     uow: UnitOfWork = Depends(get_uow),
+    mcp_client: MCPClient = Depends(get_mcp_client),
 ):
-
-    service = AIChatService(uow)
+    service = AIChatService(
+        uow=uow,
+        mcp_client=mcp_client,
+    )
 
     async def event_generator():
-
         async for token in service.stream_chat(
             conversation_id=conversation_id,
             content=data.content,
             current_user=current_user,
         ):
-
             yield f"data: {token}\n\n"
 
         yield "data: [DONE]\n\n"
@@ -80,7 +82,6 @@ async def list_messages(
     current_user: User = Depends(get_current_user),
     uow: UnitOfWork = Depends(get_uow),
 ):
-
     service = MessageService(uow)
 
     return await service.list(

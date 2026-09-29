@@ -7,7 +7,6 @@ from app.document_processing.parsers.document_parsers.base import (
     BaseDocumentParser,
 )
 from app.document_processing.stages.base import ProcessingStage
-from app.models.documents import Document
 from app.uow.unit_of_work import UnitOfWork
 
 
@@ -17,6 +16,7 @@ class ParserStage(ProcessingStage):
         self,
         parser: BaseDocumentParser,
     ) -> None:
+        
         self.parser = parser
 
     async def run(
@@ -26,7 +26,6 @@ class ParserStage(ProcessingStage):
         context: ProcessingContext,
     ) -> None:
 
-        print("===== Parser Stage =====")
         document = context.document
 
         if document is None:

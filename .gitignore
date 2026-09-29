@@ -1,8 +1,52 @@
+# Python bytecode
 __pycache__/
 *.py[cod]
 *.pyc
-.env
+*.pyo
+*.pyd
+*$py.class
+
+# Virtual environments
 .venv/
+venv/
+env/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE / editor
 .vscode/
 .idea/
+*.swp
+
+# Test / coverage artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Logs and runtime-generated data
+logs/
+*.log
 uploads/
+storage/
+tmp/
+data/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local tooling
+.uv/
+
+# Optional: keep project docs tracked
+# aios/docs/ is intentionally not ignored

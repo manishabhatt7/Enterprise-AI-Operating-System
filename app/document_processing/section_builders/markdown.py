@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 import re
-import uuid
 
 from langchain_text_splitters import MarkdownHeaderTextSplitter
 
-from app.document_processing.schemas import (
+from app.document_processing.schemas.processing import (
     ParentSection,
     ParsedDocument,
     StructuredDocument,
 )
+
 from app.document_processing.section_builders.base import (
     BaseSectionBuilder,
 )

@@ -18,6 +18,7 @@ class BaseLLMProvider(ABC):
         model: str,
         temperature: float,
         tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] = "auto",
     ) -> Any:
         """
         Generate an assistant response.

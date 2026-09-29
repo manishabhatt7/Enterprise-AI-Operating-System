@@ -1,163 +1,236 @@
 # AIOS
 
-AIOS is a FastAPI-based backend starter for managing organizations and users. It provides JWT-based authentication, PostgreSQL persistence, Redis-backed session storage, and a clean API structure for building multi-tenant applications.
+AIOS is a multi-tenant, AI-powered backend for organization-based knowledge work. It combines FastAPI, SQLAlchemy, JWT auth, vector search, and AI retrieval workflows to support secure organization management and AI-assisted document querying.
 
-## What this project does
+The system is designed for a SaaS-style architecture where each user belongs to an organization, each organization manages its own data, and AI features operate on that organization’s knowledge base.
 
-This project includes:
+## What AIOS does
 
-- User registration, login, refresh, logout, and profile retrieval
-- Organization creation and management
-- Async SQLAlchemy models with PostgreSQL
-- Redis-backed refresh-session storage
-- Alembic database migrations
-- Swagger/OpenAPI documentation via FastAPI
-- Health checks and structured API responses
+AIOS includes:
 
-## Tech stack
+- organization and user management
+- JWT-based authentication and role-aware access
+- async PostgreSQL persistence with SQLAlchemy
+- knowledge-base and document ingestion workflows
+- AI question answering over indexed organizational content
+- agent-style tool use via MCP integration
+- health checks, structured API responses, and OpenAPI docs
+- database migration support with Alembic
+
+This is more than a basic CRUD starter. It is built around a practical enterprise AI assistant pattern: users work inside an organization, upload or index documents, and ask questions that are answered using retrieved context from those documents.
+
+## Architecture overview
+
+AIOS follows a layered backend design:
+
+- API layer: FastAPI routers and endpoints
+- Service layer: business logic for auth, organization, chat, query, document processing
+- Repository / UoW layer: database access and transaction boundaries
+- Data layer: PostgreSQL via SQLAlchemy async ORM
+- AI layer: document processing, vector retrieval, reranking, and LLM integration
+- External services: Redis, Qdrant, MCP server, and LLM providers
+
+### System flow
+
+```mermaid
+flowchart LR
+    U[User / Client] --> A[FastAPI App]
+    A --> E[API Endpoints]
+    E --> S[Services]
+    S --> UOW[Unit of Work]
+    UOW --> R[Repositories]
+    R --> PG[(PostgreSQL)]
+
+    E --> Q[Query / RAG Service]
+    Q --> RE[Retrieval + Rerank + Compress]
+    RE --> QDR[(Qdrant)]
+    RE --> LLM[LLM Provider]
+    LLM --> U
+
+    A --> MCP[MCP Client]
+    MCP --> MS[MCP Server / Tools]
+```
+
+## Main project structure
+
+```text
+AIOS/
+├── app/
+│   ├── api/v1/
+│   │   ├── endpoints/
+│   │   └── router.py
+│   ├── core/
+│   ├── db/
+│   ├── models/
+│   ├── repositories/
+│   ├── services/
+│   ├── schemas/
+│   ├── dependencies/
+│   ├── exceptions/
+│   ├── llm/
+│   ├── document_processing/
+│   ├── mcp/
+│   ├── storage/
+│   ├── tools/
+│   ├── cache/
+│   └── main.py
+├── alembic/
+├── .env
+├── .env.example
+├── docker-compose.yml
+├── Dockerfile
+├── pyproject.toml
+├── README.md
+├── uv.lock
+├── docs/
+│   └── aios.md
+└── .venv/
+
+```
+
+## Core technologies
 
 - Python 3.11
 - FastAPI
 - SQLAlchemy 2.x with asyncpg
 - PostgreSQL
 - Redis
+- Qdrant
 - Alembic
-- Pydantic Settings
+- Pydantic + Pydantic Settings
 - Pytest
+- Groq / Ollama / MCP integrations for AI workflows
 
-## Project structure
+## Typical workflow
 
-- app/main.py: FastAPI application entrypoint
-- app/api/v1/: API routes and endpoints
-- app/services/: business logic
-- app/models/: SQLAlchemy models
-- app/repositories/: data access layer
-- app/cache/: Redis session storage
-- app/core/: config, JWT, security, logging
-- alembic/: database migrations
-- tests/: automated tests
+### 1) Authentication flow
 
-## Prerequisites
+Users register and log in with JWT tokens. Each authenticated request includes a current user, and organization-scoped resources are associated with the user’s organization.
 
-Before running the project, make sure you have:
+### 2) Knowledge-base flow
+
+Documents are ingested, parsed, chunked, embedded, and stored in vector storage for semantic retrieval.
+
+### 3) AI query flow
+
+When a user asks a question:
+
+1. the query is rewritten for better retrieval
+2. hybrid search retrieves relevant chunks
+3. reranking selects the best candidates
+4. context is compressed
+5. the LLM answers using that context
+6. sources are returned with the response
+
+```mermaid
+flowchart TD
+    Q[User Query] --> RQ[Query Rewriter]
+    RQ --> HYB[Hybrid Retriever]
+    HYB --> QDR[(Qdrant)]
+    QDR --> CAND[Candidate Chunks]
+    CAND --> RER[Reranker]
+    RER --> COMP[Context Compressor]
+    COMP --> LLM[LLM Answer Generation]
+    LLM --> OUT[Final Answer + Sources]
+```
+
+### 4) Agentic tool flow
+
+The app can start an MCP client and connect to an MCP server. The LLM may invoke available tools, and the backend handles tool execution and injects results back into the conversation loop.
+
+## Environment setup
+
+### Prerequisites
 
 - Python 3.11+
-- Docker and Docker Compose (recommended)
-- A local PostgreSQL and Redis instance, or Docker Compose services
+- PostgreSQL
+- Redis
+- Qdrant
+- Docker + Docker Compose (optional but recommended)
 
-## Environment configuration
+### Create and activate a virtual environment
 
-1. Copy the example environment file:
-
-   ```bash
-   copy .env.example .env
-   ```
-
-   On Linux/macOS:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-2. Update the values in .env as needed.
-
-   Key variables include:
-
-   - DATABASE_URL
-   - JWT_SECRET_KEY
-   - JWT_ALGORITHM
-   - REDIS_HOST and REDIS_PORT
-
-## Running with Docker Compose (recommended)
-
-This is the easiest way to run the full stack with PostgreSQL and Redis.
-
-```bash
-docker compose up --build
-```
-
-The API will be available at:
-
-- http://localhost:8000/docs for Swagger UI
-- http://localhost:8000/redoc for ReDoc
-
-Run database migrations:
-
-```bash
-docker compose exec backend alembic upgrade head
-```
-
-To stop the stack:
-
-```bash
-docker compose down
-```
-
-## Running locally without Docker
-
-### 1) Create and activate a virtual environment
-
-Windows:
+On Windows (Git Bash / PowerShell):
 
 ```bash
 python -m venv .venv
-.venv\Scripts\activate
+source .venv/Scripts/activate
 ```
 
-Linux/macOS:
+On Linux/macOS:
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-### 2) Install dependencies
+### Install dependencies
 
 ```bash
 uv sync
 ```
 
-### 3) Start PostgreSQL and Redis
+### Configure environment
 
-If you are not using Docker, make sure PostgreSQL and Redis are running and reachable from the values in .env.
+Copy the example environment file and set the required values:
 
-### 4) Run database migrations
+```bash
+cp .env.example .env
+```
+
+Then update `.env` with the needed database, JWT, Redis, LLM, and vector settings.
+
+## Run the app
+
+### With Docker
+
+```bash
+docker compose up --build
+```
+
+Then open:
+
+- http://localhost:8000/docs
+- http://localhost:8000/redoc
+
+### Without Docker
 
 ```bash
 alembic upgrade head
-```
-
-### 5) Start the API server
-
-```bash
 uvicorn app.main:app --reload
 ```
 
-The API will then be available at:
+The app will be available at:
 
 - http://127.0.0.1:8000/docs
 
 ## API overview
 
+The app is exposed under the `/api/v1` router.
+
 ### Health
 
-- GET /api/v1/health/health
+- `GET /api/v1/health/health`
 
-### Authentication
+### Auth
 
-- POST /api/v1/auth/register
-- POST /api/v1/auth/login
-- POST /api/v1/auth/refresh
-- POST /api/v1/auth/logout
-- GET /api/v1/auth/me
+- `POST /api/v1/auth/register`
+- `POST /api/v1/auth/login`
+- `POST /api/v1/auth/refresh`
+- `POST /api/v1/auth/logout`
+- `GET /api/v1/auth/me`
 
 ### Organizations
 
-- POST /api/v1/organizations
-- GET /api/v1/organizations
-- GET /api/v1/organizations/{organization_id}
-- PATCH /api/v1/organizations/{organization_id}
-- DELETE /api/v1/organizations/{organization_id}
+- `POST /api/v1/organizations`
+- `GET /api/v1/organizations`
+- `GET /api/v1/organizations/{organization_id}`
+- `PATCH /api/v1/organizations/{organization_id}`
+- `DELETE /api/v1/organizations/{organization_id}`
+
+### Query / AI
+
+- `POST /api/v1/query`
 
 ## Example requests
 
@@ -185,11 +258,26 @@ curl -X POST http://localhost:8000/api/v1/auth/login \
   }'
 ```
 
-## Running tests
+## Database migrations
+
+```bash
+alembic revision --autogenerate -m "describe migration"
+alembic upgrade head
+```
+
+## Testing
 
 ```bash
 pytest -q
 ```
 
-The current test suite passes successfully with the existing project configuration.
+## Documentation
+
+Detailed project documentation is available here:
+
+- [aios/docs/aios.md](aios/docs/aios.md)
+
+## Summary
+
+AIOS is a FastAPI-based, multi-tenant AI backend that combines secure organization management, document knowledge bases, and retrieval-driven AI assistant workflows. It is designed to serve as a practical foundation for enterprise-style AI products and internal knowledge systems.
 

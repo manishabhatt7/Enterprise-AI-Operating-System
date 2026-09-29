@@ -4,6 +4,7 @@ from openai import AsyncOpenAI
 from app.llm.base import BaseLLMProvider
 from collections.abc import AsyncGenerator
 
+
 class OpenAICompatibleProvider(BaseLLMProvider):
 
     def __init__(
@@ -19,13 +20,16 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         model: str,
         temperature: float,
         tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] = "auto",
     ) -> Any:
 
         response = await self.client.chat.completions.create(
             model=model,
             temperature=temperature,
             messages=messages,
-            tools=tools,
+            tools=tools or None,
+            tool_choice= tool_choice if tools else "none",
+
         )
 
         return response.choices[0].message

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from app.models.documents import Document
 from app.uow.unit_of_work import UnitOfWork
 
 from app.document_processing.context import ProcessingContext

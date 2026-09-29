@@ -5,7 +5,7 @@ from app.document_processing.section_builders.markdown import MarkdownSectionBui
 from app.document_processing.stages.section_builder import SectionBuilderStage
 from app.document_processing.chunkers.recursive import RecursiveChunker
 from app.document_processing.stages.chunker import ChunkingStage
-from app.document_processing.embedders.ollama import OllamaEmbedder 
+from app.document_processing.embedders.dense import DenseEmbedder 
 from app.document_processing.stages.embedding import EmbeddingStage
 from app.document_processing.indexers.qdrant import QdrantIndexer 
 from app.document_processing.stages.indexing import IndexingStage
@@ -25,7 +25,7 @@ def get_processing_pipeline() -> DocumentProcessingPipeline:
                 RecursiveChunker(),
             ),
             EmbeddingStage(
-                OllamaEmbedder(),
+                DenseEmbedder(),
             ),
             IndexingStage(
                 QdrantIndexer(),

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import logging
 import time
 
 from pydantic import ValidationError
@@ -13,6 +12,9 @@ from app.exceptions.tool import (
 )
 from app.tools.registry import tool_registry
 from app.tools.retry import is_retryable_exception
+
+
+import logging
 
 logger = logging.getLogger(__name__)
 

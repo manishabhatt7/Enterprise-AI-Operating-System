@@ -42,3 +42,7 @@ class DocumentResponse(BaseModel):
             return f"{mb_size} MB"
         return str(value)
 
+
+class DocumentProcessResponse(BaseModel):
+    message: str
+    document_id: UUID
