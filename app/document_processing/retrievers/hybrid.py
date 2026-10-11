@@ -19,6 +19,7 @@ class HybridRetriever(BaseRetriever):
         self,
         *,
         organization_id: str,
+        knowledge_base_id: str | None = None,
         query: str,
         top_k: int = 10,
     ) -> list[RetrievedChunk]:
@@ -26,11 +27,13 @@ class HybridRetriever(BaseRetriever):
         dense_results, sparse_results = await asyncio.gather(
             self.dense.retrieve(
                 organization_id=organization_id,
+                knowledge_base_id=knowledge_base_id,
                 query=query,
                 top_k=top_k,
             ),
             self.sparse.retrieve(
                 organization_id=organization_id,
+                knowledge_base_id=knowledge_base_id,
                 query=query,
                 top_k=top_k,
             ),

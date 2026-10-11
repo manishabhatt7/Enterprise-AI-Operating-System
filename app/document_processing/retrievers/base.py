@@ -12,6 +12,7 @@ class BaseRetriever(ABC):
         self,
         *,
         organization_id: str,
+        knowledge_base_id: str | None = None,
         query: str,
         top_k: int = 5,
     ) -> list[RetrievedChunk]:

@@ -25,6 +25,7 @@ class DenseRetriever(BaseRetriever):
         self,
         *,
         organization_id: str,
+        knowledge_base_id: str | None = None,
         query: str,
         top_k: int = 3,
     ) -> list[RetrievedChunk]:
@@ -48,10 +49,18 @@ class DenseRetriever(BaseRetriever):
                 must=[
                     FieldCondition(
                         key="organization_id",
-                        match=MatchValue(
-                            value=organization_id,
-                        ),
-                    )
+                        match=MatchValue(value=organization_id),
+                    ),
+                    *(
+                        [
+                            FieldCondition(
+                                key="knowledge_base_id",
+                                match=MatchValue(value=knowledge_base_id),
+                            )
+                        ]
+                        if knowledge_base_id
+                        else []
+                    ),
                 ]
             ),
             

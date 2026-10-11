@@ -30,5 +30,6 @@ dependencies = [
     "sentence-transformers>=5.6.1",
     "sqlalchemy>=2.0.51",
     "structlog>=26.1.0",
+    "streamlit>=1.44.0",
     "uvicorn[standard]>=0.51.0",
 ]

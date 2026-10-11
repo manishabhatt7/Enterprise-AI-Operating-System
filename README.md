@@ -166,6 +166,13 @@ source .venv/bin/activate
 
 ### Install dependencies
 
+Install uv with this command:
+
+For linux:
+'''bash
+curl -LsSf https://astral.sh/uv/install.sh | sh   
+'''
+
 ```bash
 uv sync
 ```
@@ -203,6 +210,33 @@ uvicorn app.main:app --reload
 The app will be available at:
 
 - http://127.0.0.1:8000/docs
+
+## Standalone AIOS workspace
+
+AIOS also includes a Streamlit workspace for registering or signing in, managing
+organizations, knowledge bases and PDF documents, configuring agents, and chatting
+with an agent using the backend's tool-enabled conversation workflow. A separate
+knowledge search view displays the retrieved context and source chunks. The Streamlit
+process automatically upgrades the database to the latest Alembic revision and starts
+the FastAPI backend; you do not need to start Uvicorn separately.
+
+Configure `.env` and start the supporting services first. For the included Compose
+services, for example:
+
+```bash
+docker compose up -d postgres redis qdrant
+```
+
+```bash
+streamlit run streamlit_app.py
+```
+
+PostgreSQL, Redis, Qdrant, and any configured model/MCP services must still be
+available. Database migration or API startup failures are shown in the Streamlit
+interface. By default, the UI uses the API started by Streamlit at
+`http://127.0.0.1:8000/api/v1`. Set `AIOS_API_URL` only when intentionally connecting
+to an API managed outside this Streamlit process; external mode does not run local
+migrations or start a local API.
 
 ## API overview
 
@@ -275,9 +309,8 @@ pytest -q
 
 Detailed project documentation is available here:
 
-- [aios/docs/aios.md](aios/docs/aios.md)
+- [docs/aios.md](docs/aios.md)
 
 ## Summary
 
 AIOS is a FastAPI-based, multi-tenant AI backend that combines secure organization management, document knowledge bases, and retrieval-driven AI assistant workflows. It is designed to serve as a practical foundation for enterprise-style AI products and internal knowledge systems.
-

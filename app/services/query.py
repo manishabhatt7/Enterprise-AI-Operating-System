@@ -25,6 +25,7 @@ class QueryService:
         *,
         query: str,
         organization_id: str,
+        knowledge_base_id: str | None = None,
     ) -> QueryResponse:
 
         logger.info(
@@ -43,6 +44,7 @@ class QueryService:
         retrieved_chunks = await self.retriever.retrieve(
             query=rewritten_query,
             organization_id=organization_id,
+            knowledge_base_id=knowledge_base_id,
             top_k=self.RETRIEVAL_TOP_K,
         )
 
